@@ -13,5 +13,5 @@ services:
   db:
     image: "mcr.microsoft.com/mssql/server"
     environment:
-        SA_PASSWORD: "Your_password123"
+        SA_PASSWORD: "p@ss0wrd!"
         ACCEPT_EULA: "Y"

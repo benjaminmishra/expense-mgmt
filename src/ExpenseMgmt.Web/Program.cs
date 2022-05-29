@@ -1,7 +1,12 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.EntityFrameworkCore;
+using ExpenseMgtm.Data;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<ExpenseMgtmContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ExpenseMgmtDb")));
 
 var app = builder.Build();
 

@@ -21,6 +21,16 @@ namespace ExpenseMgmt.Data.Migrations
                 name: "EmployeeRole",
                 newName: "EmployeeRoles");
 
+            migrationBuilder.RenameColumn(
+                name: "RoleIdId",
+                table: "Employees",
+                newName: "RoleId");
+
+            migrationBuilder.RenameIndex(
+                name: "IX_Employees_RoleIdId",
+                table: "Employees",
+                newName: "IX_Employees_RoleId");
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_EmployeeRoles",
                 table: "EmployeeRoles",
@@ -33,7 +43,7 @@ namespace ExpenseMgmt.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedById = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -41,8 +51,8 @@ namespace ExpenseMgmt.Data.Migrations
                 {
                     table.PrimaryKey("PK_Expenses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Expenses_Employees_CreatedById",
-                        column: x => x.CreatedById,
+                        name: "FK_Expenses_Employees_CreatedBy",
+                        column: x => x.CreatedBy,
                         principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -55,49 +65,37 @@ namespace ExpenseMgmt.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Serial = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExpenseIdId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<int>(type: "int", nullable: false),
                     UploadedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IncurredOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExpenseId1 = table.Column<int>(type: "int", nullable: false)
+                    ExpenseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Bills", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Bills_Expenses_ExpenseId1",
-                        column: x => x.ExpenseId1,
-                        principalTable: "Expenses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Bills_Expenses_ExpenseIdId",
-                        column: x => x.ExpenseIdId,
+                        name: "FK_Bills_Expenses_ExpenseId",
+                        column: x => x.ExpenseId,
                         principalTable: "Expenses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bills_ExpenseId1",
+                name: "IX_Bills_ExpenseId",
                 table: "Bills",
-                column: "ExpenseId1");
+                column: "ExpenseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bills_ExpenseIdId",
-                table: "Bills",
-                column: "ExpenseIdId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Expenses_CreatedById",
+                name: "IX_Expenses_CreatedBy",
                 table: "Expenses",
-                column: "CreatedById");
+                column: "CreatedBy");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Employees_EmployeeRoles_RoleIdId",
+                name: "FK_Employees_EmployeeRoles_RoleId",
                 table: "Employees",
-                column: "RoleIdId",
+                column: "RoleId",
                 principalTable: "EmployeeRoles",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
@@ -106,7 +104,7 @@ namespace ExpenseMgmt.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Employees_EmployeeRoles_RoleIdId",
+                name: "FK_Employees_EmployeeRoles_RoleId",
                 table: "Employees");
 
             migrationBuilder.DropTable(
@@ -122,6 +120,16 @@ namespace ExpenseMgmt.Data.Migrations
             migrationBuilder.RenameTable(
                 name: "EmployeeRoles",
                 newName: "EmployeeRole");
+
+            migrationBuilder.RenameColumn(
+                name: "RoleId",
+                table: "Employees",
+                newName: "RoleIdId");
+
+            migrationBuilder.RenameIndex(
+                name: "IX_Employees_RoleId",
+                table: "Employees",
+                newName: "IX_Employees_RoleIdId");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_EmployeeRole",

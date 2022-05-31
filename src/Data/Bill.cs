@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace ExpenseMgmt.Data;
@@ -15,6 +15,7 @@ public class Bill
     public string Reason { get; set; }
 
     public int ExpenseId { get; set; }
+    [ForeignKey("ExpenseId")]
     public Expense Expense { get; set; }
 }
 

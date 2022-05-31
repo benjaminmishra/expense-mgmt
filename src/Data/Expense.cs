@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ExpenseMgmt.Data;
 
 public class Expense
@@ -10,8 +12,8 @@ public class Expense
 	public DateTime ModifiedOn { get; set; }
 
 	public List<Bill> Bills { get; set; }
+
+    [ForeignKey("CreatedBy")]
 	public Employee Employee { get; set; }
-
-
 }
 

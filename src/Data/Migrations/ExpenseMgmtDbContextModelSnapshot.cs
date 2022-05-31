@@ -33,10 +33,7 @@ namespace ExpenseMgmt.Data.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("int");
 
-                    b.Property<int>("ExpenseId1")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExpenseIdId")
+                    b.Property<int>("ExpenseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("IncurredOn")
@@ -55,9 +52,7 @@ namespace ExpenseMgmt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExpenseId1");
-
-                    b.HasIndex("ExpenseIdId");
+                    b.HasIndex("ExpenseId");
 
                     b.ToTable("Bills");
                 });
@@ -84,12 +79,12 @@ namespace ExpenseMgmt.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoleIdId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleIdId");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Employees");
                 });
@@ -123,7 +118,7 @@ namespace ExpenseMgmt.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CreatedById")
+                    b.Property<int>("CreatedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedOn")
@@ -138,48 +133,42 @@ namespace ExpenseMgmt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("ExpenseMgmt.Data.Bill", b =>
                 {
-                    b.HasOne("ExpenseMgmt.Data.Expense", null)
+                    b.HasOne("ExpenseMgmt.Data.Expense", "Expense")
                         .WithMany("Bills")
-                        .HasForeignKey("ExpenseId1")
+                        .HasForeignKey("ExpenseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ExpenseMgmt.Data.Expense", "ExpenseId")
-                        .WithMany()
-                        .HasForeignKey("ExpenseIdId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExpenseId");
+                    b.Navigation("Expense");
                 });
 
             modelBuilder.Entity("ExpenseMgmt.Data.Employee", b =>
                 {
-                    b.HasOne("ExpenseMgmt.Data.EmployeeRole", "RoleId")
+                    b.HasOne("ExpenseMgmt.Data.EmployeeRole", "EmployeeRole")
                         .WithMany()
-                        .HasForeignKey("RoleIdId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RoleId");
+                    b.Navigation("EmployeeRole");
                 });
 
             modelBuilder.Entity("ExpenseMgmt.Data.Expense", b =>
                 {
-                    b.HasOne("ExpenseMgmt.Data.Employee", "CreatedBy")
+                    b.HasOne("ExpenseMgmt.Data.Employee", "Employee")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
+                        .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CreatedBy");
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("ExpenseMgmt.Data.Expense", b =>

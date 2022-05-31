@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseMgtm.Data;
+namespace ExpenseMgmt.Data;
 
-public class ExpenseMgtmContext: DbContext
+public class ExpenseMgmtDbContext : DbContext
 {
 
-    public ExpenseMgtmContext(DbContextOptions<ExpenseMgtmContext> options)
+    public ExpenseMgmtDbContext(DbContextOptions<ExpenseMgmtDbContext> options)
         : base(options)
     {
     }

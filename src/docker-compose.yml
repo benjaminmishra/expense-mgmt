@@ -5,7 +5,7 @@ services:
     image: ${DOCKER_REGISTRY-}expensemgmt
     build:
       context: .
-      dockerfile: ExpenseMgmt.Web/Dockerfile
+      dockerfile: Web/Dockerfile
     ports:
       - "80:80"
     depends_on:
@@ -15,3 +15,7 @@ services:
     environment:
         SA_PASSWORD: "p@ss0wrd!"
         ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+    expose:
+      - 1433

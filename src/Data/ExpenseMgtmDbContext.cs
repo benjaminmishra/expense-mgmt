@@ -12,6 +12,18 @@ public class ExpenseMgmtDbContext : DbContext
     {
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+
+        //modelBuilder.Entity<Expense>()
+         //   .HasMany(b => b.Bills)
+          //  .WithOne();
+            //.HasForeignKey(p=>p.ExpenseId);
+    }
+
     public DbSet<Employee> Employees { get; set; }
+    public DbSet<EmployeeRole> EmployeeRoles { get; set; }
+    public DbSet<Expense> Expenses { get; set; }
+    public DbSet<Bill> Bills { get; set; }
 }
 

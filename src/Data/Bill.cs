@@ -7,6 +7,7 @@ namespace ExpenseMgmt.Data;
 
 public class Bill
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string Serial { get; set; }
     public int Amount { get; set; }

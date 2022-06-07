@@ -1,0 +1,48 @@
+﻿@model Web.Models.ExpenseViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h4>Employee Form</h4>
+<hr />
+<div class="col-md-6">
+    <form asp-action="AddorEdit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Currency" class="control-label"></label>
+            <input asp-for="Currency" class="form-control" />
+            <span asp-validation-for="Currency" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="CreatedBy" class="control-label"></label>
+            <input asp-for="CreatedBy" class="form-control" />
+            <span asp-validation-for="CreatedBy" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="CreatedOn" class="control-label"></label>
+                <input asp-for="CreatedOn" class="form-control" />
+                <span asp-validation-for="CreatedOn" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="ModifiedOn" class="control-label"></label>
+                <input asp-for="ModifiedOn" class="form-control" />
+                <span asp-validation-for="ModifiedOn" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <input type="submit" value="Submit" class="btn btn-secondary btn-block" />
+            </div>
+            <div class="form-group col-md-6">
+                <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

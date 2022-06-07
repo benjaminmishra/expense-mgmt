@@ -1,0 +1,67 @@
+﻿@model Web.Models.ExpenseViewModel
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Session;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Create";
+    var userrole = 0;
+    if (HttpContextAccessor.HttpContext.Session.TryGetValue("UserRole", out byte[]? value))
+    {
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(value);
+        }
+
+        userrole = BitConverter.ToInt32(value, 0);
+    }
+
+}
+
+<h4>Create Expense Form</h4>
+<hr />
+<div class="col-md-6">
+    <form asp-action="AddorEdit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Currency" class="control-label"></label>
+            <input asp-for="Currency" class="form-control" />
+            <span asp-validation-for="Currency" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Purpose" class="control-label"></label>
+            <input asp-for="Purpose" class="form-control" />
+            <span asp-validation-for="Purpose" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="CreatedOn" class="control-label"></label>
+                <input asp-for="CreatedOn" class="form-control" />
+                <span asp-validation-for="CreatedOn" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="ModifiedOn" class="control-label"></label>
+                <input asp-for="ModifiedOn" class="form-control" />
+                <span asp-validation-for="ModifiedOn" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            @if (userrole == 1)
+            {
+                <div class="form-group col-md-6">
+                    <input type="submit" value="Submit" class="btn btn-secondary btn-block" />
+            </div>
+            }
+            <div class="form-group col-md-6">
+                <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

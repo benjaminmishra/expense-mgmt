@@ -139,18 +139,20 @@ public class ExpenseController : Controller
         {
             if (expenseViewModel.Id == 0)
             {
-                Expense expense = new Expense {
+                Expense expense = new Expense
+                {
                     Currency = expenseViewModel.Currency,
                     CreatedOn = DateTime.Now,
                     CreatedBy = UserId,
                     ModifiedOn = DateTime.Now,
                 };
-                
+
                 _context.Expenses.Add(expense);
                 await _context.SaveChangesAsync();
-                
-                ExpensesHistory history = new ExpensesHistory { 
-                    ExpenseId  = expense.Id,
+
+                ExpensesHistory history = new ExpensesHistory
+                {
+                    ExpenseId = expense.Id,
                     CreatedOn = DateTime.Now,
                     StatusId = 1,
                     Purpose = expenseViewModel.Purpose,
@@ -162,9 +164,33 @@ public class ExpenseController : Controller
                 _context.ExpensesHistories.Add(history);
                 await _context.SaveChangesAsync();
             }
-            //else
-            //    _context.Update(expense);
+            else
+            {
+                var expense = _context.Expenses.Include(e => e.History
+                            .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == expenseViewModel.Id);
 
+                expense.Currency = expenseViewModel.Currency;
+                expense.ModifiedOn = DateTime.Now;
+                
+                var existingHistory = expense.History.First();
+                existingHistory.IsLatest = false;
+                existingHistory.ModifiedOn = DateTime.Now;
+
+                ExpensesHistory newHistory = new ExpensesHistory
+                {
+                    ExpenseId = expense.Id,
+                    CreatedOn = DateTime.Now,
+                    StatusId = 1,
+                    Purpose = expenseViewModel.Purpose,
+                    IsLatest = true,
+                    ModifiedOn = DateTime.Now,
+                };
+
+                _context.Expenses.Update(expense);
+                _context.ExpensesHistories.Update(existingHistory);
+                _context.ExpensesHistories.Add(newHistory);
+                await _context.SaveChangesAsync();
+            }
             
             return RedirectToAction(nameof(Index));
         }

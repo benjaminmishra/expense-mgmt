@@ -313,6 +313,12 @@ namespace ExpenseMgmt.Data.Migrations
                             Id = 4,
                             Description = "Paid by accountant",
                             Name = "Paid"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Rejected by manager",
+                            Name = "Rejected"
                         });
                 });
 

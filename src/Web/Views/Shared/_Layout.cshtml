@@ -35,7 +35,7 @@
             <div class="nav-wrapper container">
                 <a id="logo-container" asp-controller="Home" asp-action="Index" class="brand-logo">Fictional Company</a>
                 <ul class="right hide-on-med-and-down">
-                    
+
                     @if (userid != 0)
                     {
                         <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
@@ -44,7 +44,7 @@
                 </ul>
 
                 <ul id="nav-mobile" class="sidenav">
-                    
+
                     @if (userid != 0)
                     {
                         <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>

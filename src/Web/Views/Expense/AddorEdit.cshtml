@@ -15,6 +15,8 @@
 
         userrole = BitConverter.ToInt32(value, 0);
     }
+    bool isNotEmployee = userrole == 1 ? false : true;
+    bool isManager = userrole == 2 ? true : false;
 
 }
 
@@ -26,32 +28,48 @@
         <input type="hidden" asp-for="Id" />
         <div class="form-group">
             <label asp-for="Currency" class="control-label"></label>
-            <input asp-for="Currency" class="form-control" />
+            @if (isNotEmployee)
+            {
+                <input asp-for="Currency" class="form-control" readonly="readonly" />
+            }
+            else
+            {
+                <input asp-for="Currency" class="form-control" />
+            }
             <span asp-validation-for="Currency" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Purpose" class="control-label"></label>
-            <input asp-for="Purpose" class="form-control" />
+            @if (isNotEmployee)
+            {
+                <input asp-for="Purpose" class="form-control" readonly="readonly" />
+            }
+            else
+            {
+                <input asp-for="Purpose" class="form-control" />
+            }
             <span asp-validation-for="Purpose" class="text-danger"></span>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label asp-for="CreatedOn" class="control-label"></label>
                 <input asp-for="CreatedOn" class="form-control" readonly="readonly" />
-                <span asp-validation-for="CreatedOn" class="text-danger"></span>
             </div>
             <div class="form-group col-md-6">
                 <label asp-for="ModifiedOn" class="control-label"></label>
-                <input asp-for="ModifiedOn" class="form-control" readonly="readonly"/>
-                <span asp-validation-for="ModifiedOn" class="text-danger"></span>
+                <input asp-for="ModifiedOn" class="form-control" readonly="readonly" />
             </div>
         </div>
+        <div class="form-group">
+            <label asp-for="StatusType" class="control-label"></label>
+            <input asp-for="StatusType" class="form-control" readonly="readonly" />
+        </div>
         <div class="form-row">
-            @if (userrole == 1)
+            @if (!isNotEmployee)
             {
                 <div class="form-group col-md-6">
                     <input type="submit" value="Submit" class="btn btn-secondary btn-block" />
-            </div>
+                </div>
             }
             <div class="form-group col-md-6">
                 <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>

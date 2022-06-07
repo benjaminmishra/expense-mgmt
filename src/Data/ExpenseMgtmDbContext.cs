@@ -64,6 +64,12 @@ public class ExpenseMgmtDbContext : DbContext
                 Id=4,
                 Name = "Paid",
                 Description = "Paid by accountant"
+            },
+            new ExpenseStatusType
+            {
+                Id = 5,
+                Name = "Rejected",
+                Description = "Rejected by manager"
             });
 
         builder.Entity<Employee>().HasData(

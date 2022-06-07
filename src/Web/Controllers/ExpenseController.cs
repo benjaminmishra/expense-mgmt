@@ -36,7 +36,7 @@ public class ExpenseController : Controller
         var expenses = _context.Expenses.Include(e => e.Employee)
             .Include(e => e.History
                             .Where(h => h.IsLatest == true)
-                            );
+                            ).ThenInclude(h=>h.ExpenseStatusType);
 
         IEnumerable<Expense> expenseQuery = new List<Expense>();
 
@@ -69,7 +69,7 @@ public class ExpenseController : Controller
                 expenseQuery = expenses.Where(e => e.CreatedBy == userid);
                 break;
             case 2: // manager
-                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid);
+                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid && e.History.First().StatusId==1);
                 break;
 
             case 3: // accountant
@@ -88,9 +88,11 @@ public class ExpenseController : Controller
                 Id = e.Id,
                 Currency = e.Currency,
                 ModifiedOn = e.ModifiedOn,
-                CreatedBy = e.CreatedBy,
+                CreatedByName = e.Employee.FullName,
                 CreatedOn = e.CreatedOn,
-                Purpose = e.History.First().Purpose
+                Purpose = e.History.First().Purpose,
+                Status = e.History.First().StatusId,
+                StatusType = e.History.First().ExpenseStatusType.Name
             });
         }
 
@@ -105,7 +107,8 @@ public class ExpenseController : Controller
         else
         {
             var expense = _context.Expenses.Include(e => e.History
-                            .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
+                            .Where(h => h.IsLatest == true)).ThenInclude(h=>h.ExpenseStatusType)
+                            .Include(e=>e.Employee).SingleOrDefault(e => e.Id == id);
 
             if (expense == default)
                 return NotFound();
@@ -113,11 +116,13 @@ public class ExpenseController : Controller
             var viewModel = new ExpenseViewModel
             {
                 Id = expense.Id,
-                CreatedBy = expense.CreatedBy,
+                CreatedByName = expense.Employee.FullName,
                 CreatedOn = expense.CreatedOn,
                 Currency = expense.Currency,
                 ModifiedOn = expense.ModifiedOn,
-                Purpose = expense.History.First().Purpose
+                Purpose = expense.History.First().Purpose,
+                Status = expense.History.First().StatusId,
+                StatusType = expense.History.First().ExpenseStatusType.Name
             };
             return View(viewModel);
         }
@@ -198,10 +203,8 @@ public class ExpenseController : Controller
         return View(expenseViewModel);
     }
 
-    // POST: Expense/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ManagerApprove([Bind("Id,Currency,Purpose")] ExpenseViewModel expenseViewModel)
+    // POST: Expense/ManagerApprove/2
+    public async Task<IActionResult> ManagerApprove(int id=0)
     {
         int UserId = 0;
         if (HttpContext.Session.TryGetValue("UserId", out var value))
@@ -215,7 +218,7 @@ public class ExpenseController : Controller
         {
 
             var expense = _context.Expenses.Include(e => e.History
-                        .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == expenseViewModel.Id);
+                        .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
 
             expense.ModifiedOn = DateTime.Now;
 
@@ -228,9 +231,10 @@ public class ExpenseController : Controller
                 ExpenseId = expense.Id,
                 CreatedOn = DateTime.Now,
                 StatusId = 2,
-                Purpose = expenseViewModel.Purpose,
+                Purpose = existingHistory.Purpose,
                 IsLatest = true,
                 ModifiedOn = DateTime.Now,
+                Remark =  "Appoved by "
             };
 
             _context.Expenses.Update(expense);
@@ -238,10 +242,51 @@ public class ExpenseController : Controller
             _context.ExpensesHistories.Add(newHistory);
             await _context.SaveChangesAsync();
 
+            return RedirectToAction(nameof(Index));
+        }
+        return View();
+    }
+
+    public async Task<IActionResult> Reject(int id = 0)
+    {
+        int UserId = 0;
+        if (HttpContext.Session.TryGetValue("UserId", out var value))
+        {
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(value);
+            UserId = BitConverter.ToInt32(value, 0);
+        }
+
+        if (ModelState.IsValid)
+        {
+            var expense = _context.Expenses.Include(e => e.History
+                        .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
+
+            expense.ModifiedOn = DateTime.Now;
+
+            var existingHistory = expense.History.First();
+            existingHistory.IsLatest = false;
+            existingHistory.ModifiedOn = DateTime.Now;
+
+            ExpensesHistory newHistory = new ExpensesHistory
+            {
+                ExpenseId = expense.Id,
+                CreatedOn = DateTime.Now,
+                StatusId = 5,
+                Purpose = existingHistory.Purpose,
+                IsLatest = true,
+                ModifiedOn = DateTime.Now,
+                Remark = "Rejected"
+            };
+
+            _context.Expenses.Update(expense);
+            _context.ExpensesHistories.Update(existingHistory);
+            _context.ExpensesHistories.Add(newHistory);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
-        return View(expenseViewModel);
+        return View();
     }
 
     // GET: Employee/Delete/5

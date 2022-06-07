@@ -17,9 +17,9 @@ namespace Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ExpenseMgmtDbContext _dbCOntext;
-        private readonly Microsoft.AspNetCore.Http.ISession session;
+        private readonly ISession session;
 
-        public HomeController(ILogger<HomeController> logger, ExpenseMgmtDbContext dbContext, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
+        public HomeController(ILogger<HomeController> logger, ExpenseMgmtDbContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _dbCOntext = dbContext;
@@ -28,23 +28,26 @@ namespace Web.Controllers
 
         public IActionResult Index()
         {
+            ViewData["LoginFailed"] = false;
             return View();
         }
 
         public IActionResult Privacy()
         {
+            ViewData["LoginFailed"] = false;
             return View();
         }
 
         [HttpPost]
         public IActionResult Login(User user)
         {
+            ViewData["LoginFailed"] = false;
             if (ModelState.IsValid)
             {
                 var employee = _dbCOntext.Employees.SingleOrDefault(e => e.Id == user.EmployeeId && e.IsActive && e.Password == user.Password);
                 if (employee != default)
                 {
-                    HttpContext.Session.SetInt32("UserRole",employee.RoleId);
+                    HttpContext.Session.SetInt32("UserRole", employee.RoleId);
                     HttpContext.Session.SetInt32("UserId", user.EmployeeId);
                     TempData["userid"] = user.EmployeeId;
                     TempData["userName"] = employee.FullName;
@@ -52,8 +55,8 @@ namespace Web.Controllers
                     return Redirect("/Expense/Index");
                 }
             }
-
-            return RedirectToAction("Index",user);
+            ViewData["LoginFailed"] = true;
+            return RedirectToAction("Index");
         }
 
         public IActionResult Logout()

@@ -25,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.Remark)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedOn)
+                Action Taken On
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
@@ -57,4 +57,9 @@
             </tr>
         }
     </tbody>
+    <tfoot>
+
+        <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
+
+    </tfoot>
 </table>

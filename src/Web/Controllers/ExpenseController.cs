@@ -33,10 +33,10 @@ public class ExpenseController : Controller
 
     public async Task<IActionResult> Index(User user)
     {
-        var expenses = _context.Expenses
+        var expenses = await _context.Expenses
             .Include(e => e.Employee)
             .Include(e => e.History.Where(h => h.IsLatest == true))
-            .ThenInclude(h=>h.ExpenseStatusType).ToList();
+            .ThenInclude(h=>h.ExpenseStatusType).ToListAsync();
 
         IEnumerable<Expense> expenseQuery = new List<Expense>();
 
@@ -164,7 +164,7 @@ public class ExpenseController : Controller
                     Purpose = expenseViewModel.Purpose,
                     IsLatest = true,
                     ModifiedOn = DateTime.Now,
-
+                    Remark = "Created by Employee and pending for approval"
                 };
 
                 _context.ExpensesHistories.Add(history);
@@ -190,6 +190,7 @@ public class ExpenseController : Controller
                     Purpose = expenseViewModel.Purpose,
                     IsLatest = true,
                     ModifiedOn = DateTime.Now,
+                    Remark = "Modified by employee"
                 };
 
                 _context.Expenses.Update(expense);
@@ -234,7 +235,7 @@ public class ExpenseController : Controller
                 Purpose = existingHistory.Purpose,
                 IsLatest = true,
                 ModifiedOn = DateTime.Now,
-                Remark =  "Appoved by "
+                Remark =  "Appoved by Manager"
             };
 
             _context.Expenses.Update(expense);
@@ -276,7 +277,7 @@ public class ExpenseController : Controller
                 Purpose = existingHistory.Purpose,
                 IsLatest = true,
                 ModifiedOn = DateTime.Now,
-                Remark = "Rejected"
+                Remark = "Rejected by manager"
             };
 
             _context.Expenses.Update(expense);
@@ -329,6 +330,26 @@ public class ExpenseController : Controller
             return RedirectToAction(nameof(Index));
         }
         return View();
+    }
+
+
+    public IActionResult History([Bind("ExpenseId")] IEnumerable<ExpenseHistoryViewModel> expenseHistoryViewModels, int id)
+    {
+        var expensesHistory = _context.ExpensesHistories.Include(x=>x.ExpenseStatusType)
+            .Include(x=>x.Expense).ThenInclude(e=>e.Employee)
+            .Where(h => h.ExpenseId == id);
+
+        var expenseHistoryVMs = expensesHistory.Select(e=> new ExpenseHistoryViewModel { 
+            ExpenseId =e.ExpenseId,
+            Status = e.ExpenseStatusType.Name,
+            Purpose = e.Purpose,
+            Remark = e.Remark,
+            CreatedBy = e.Expense.Employee.FullName,
+            CreatedOn = e.CreatedOn,
+            ModifiedOn = e.ModifiedOn
+        });
+
+        return View(expenseHistoryVMs);
     }
 
     // GET: Employee/Delete/5

@@ -8,8 +8,7 @@ public class ExpenseViewModel
 	public int CreatedBy { get; set; }
 	public DateTime CreatedOn { get; set; }
 	public DateTime ModifiedOn { get; set; }
-
+	public int Status { get; set; }
 	public string Purpose { get; set; }
-
 	public string Remark { get; set; }
 }

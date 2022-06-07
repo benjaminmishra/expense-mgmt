@@ -28,10 +28,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.ModifiedOn)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Purpose)
+            </th>
             @if (userrole == 1)
             {
                 <th>
-                
                     <a asp-action="AddorEdit" class="btn btn-outline-success"><i class="fa fa-plus-square"></i> Add Expense</a>
                 </th>
             }
@@ -57,8 +59,19 @@
                     @Html.DisplayFor(modelItem => item.ModifiedOn)
                 </td>
                 <td>
-                    <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-marker fa-lg"></i></a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to delete this record?')"><i class="fa fa-trash-alt fa-lg"></i></a>
+                    @Html.DisplayFor(modelItem => item.Purpose)
+                </td>
+                <td>
+                    @if (userrole == 1)
+                    {
+                        <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-marker fa-lg"></i></a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to delete expense?')"><i class="fa fa-trash-alt fa-lg"></i></a>
+                    }
+                    else if (userrole == 2)
+                    {
+                        <a asp-action="Approve" asp-route-id="@item.Id"><i class="fa fa-marker fa-lg"></i></a>
+                        <a asp-action="Reject" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to reject this expense?')"><i class="fa fa-trash-alt fa-lg"></i></a>
+                    }
                 </td>
             </tr>
         }

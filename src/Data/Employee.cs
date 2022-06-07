@@ -21,4 +21,3 @@ public class Employee
     [ForeignKey("RoleId")]
     public EmployeeRole EmployeeRole { get; set; }
 }
-

@@ -33,7 +33,12 @@ public class ExpenseController : Controller
 
     public async Task<IActionResult> Index(User user)
     {
-        IEnumerable<Expense> expenseQuery = _context.Expenses;
+        var expenses = _context.Expenses.Include(e => e.Employee)
+            .Include(e=>e.History
+                            .Where(h=>h.IsLatest==true)
+                            );
+
+        IEnumerable<Expense> expenseQuery =  new List<Expense>();
 
         int userrole = 0;
         int userid = 0;
@@ -61,10 +66,10 @@ public class ExpenseController : Controller
         switch (userrole)
         {
             case 1: // employee
-                expenseQuery = expenseQuery.Where(e => e.CreatedBy == userid);
+                expenseQuery = expenses.Where(e => e.CreatedBy == userid);
                 break;
             case 2: // manager
-                expenseQuery = _context.Expenses.Include(e=>e.Employee).Where(e => e.Employee.ManagerId == userid);
+                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid);
                 break;
 
             case 3: // accountant
@@ -85,6 +90,7 @@ public class ExpenseController : Controller
                 ModifiedOn = e.ModifiedOn,
                 CreatedBy = e.CreatedBy,
                 CreatedOn = e.CreatedOn,
+                Purpose = e.History.First().Purpose
             });
         }
 
@@ -98,13 +104,19 @@ public class ExpenseController : Controller
             return View(new ExpenseViewModel());
         else
         {
-            var expense = _context.Expenses.Find(id);
+            var expense = _context.Expenses.Include(e => e.History
+                            .Where(h => h.IsLatest == true)).SingleOrDefault(e=>e.Id ==id);
+
+            if (expense == default)
+                return NotFound();
+
             var viewModel = new ExpenseViewModel { 
                 Id = expense.Id,
                 CreatedBy = expense.CreatedBy,
                 CreatedOn = expense.CreatedOn,
                 Currency = expense.Currency,
-                ModifiedOn = expense.ModifiedOn
+                ModifiedOn = expense.ModifiedOn,
+                Purpose = expense.History.First().Purpose
             };
             return View(viewModel);
         }

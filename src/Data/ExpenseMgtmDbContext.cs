@@ -52,22 +52,17 @@ public class ExpenseMgmtDbContext : DbContext
             },
             new ExpenseStatusType {
                 Id = 2,
-                Name = "Approved",
-                Description = "Approved by manager"
-            },
-            new ExpenseStatusType {
-                Id = 3,
                 Name = "Pending to be paid",
-                Description = "Pending with accountant"
+                Description = "Approved by manager, Pending with accountant"
             },
             new ExpenseStatusType {
-                Id=4,
+                Id=3,
                 Name = "Paid",
                 Description = "Paid by accountant"
             },
             new ExpenseStatusType
             {
-                Id = 5,
+                Id = 4,
                 Name = "Rejected",
                 Description = "Rejected by manager"
             });

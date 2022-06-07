@@ -7,8 +7,22 @@
     ViewData["Title"] = "Index";
     int userrole = (int)ViewData["userrole"];
 }
-
-<h4>Expenses List</h4>
+@if (userrole == 1)
+{
+    <h4>Expenses Created by you</h4>
+}
+else if (userrole == 2)
+{
+    <h4>Expense waiting for your approval</h4>
+}
+else if(userrole == 3)
+{
+    <h4>Expenses waiting to be paid</h4>
+}
+else
+{
+    <h4>Expenses List</h4>
+}
 
 <table class="highlight">
     <thead>
@@ -58,7 +72,7 @@
                 <td>
                     @if (userrole == 1)
                     {
-                        if (item.Status<2)
+                        if (item.Status==1)
                         {
                             <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-marker fa-lg"></i></a>
                             <a asp-action="Delete" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to delete expense?')"><i class="fa fa-trash-alt fa-lg"></i></a>
@@ -67,11 +81,19 @@
                     else if (userrole == 2)
                     {
                         <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-eye"></i></a>
-                        if (item.Status <3)
+                        if (item.Status==1)
                         {
                             <a asp-action="ManagerApprove" asp-route-id="@item.Id"><i class="fa fa-check fa-lg"></i></a>
                             <a asp-action="Reject" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to reject this expense?')"><i class="fa fa-ban fa-lg"></i></a>
                         }
+                    }
+                    else if (userrole == 3)
+                    {
+                        <a asp-action="Pay" asp-route-id="@item.Id"><i class="fa fa-money fa-lg"></i></a>
+                    }
+                    else
+                    {
+                        <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-eye"></i></a>
                     }
 
                 </td>

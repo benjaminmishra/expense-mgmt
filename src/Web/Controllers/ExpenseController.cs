@@ -33,10 +33,10 @@ public class ExpenseController : Controller
 
     public async Task<IActionResult> Index(User user)
     {
-        var expenses = _context.Expenses.Include(e => e.Employee)
-            .Include(e => e.History
-                            .Where(h => h.IsLatest == true)
-                            ).ThenInclude(h=>h.ExpenseStatusType);
+        var expenses = _context.Expenses
+            .Include(e => e.Employee)
+            .Include(e => e.History.Where(h => h.IsLatest == true))
+            .ThenInclude(h=>h.ExpenseStatusType).ToList();
 
         IEnumerable<Expense> expenseQuery = new List<Expense>();
 
@@ -69,11 +69,11 @@ public class ExpenseController : Controller
                 expenseQuery = expenses.Where(e => e.CreatedBy == userid);
                 break;
             case 2: // manager
-                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid && e.History.First().StatusId==1);
+                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid).Where(e=>e.History.FirstOrDefault().StatusId==1);
                 break;
 
             case 3: // accountant
-                expenseQuery = _context.ExpensesHistories.Where(eh => eh.IsLatest && eh.StatusId == 3).Select(x => x.Expense);
+                expenseQuery = expenses.Where(e=> e.History.FirstOrDefault().StatusId==2);
                 break;
 
             case 4: // admin - revist this query , for now fetch everything in the system
@@ -90,9 +90,9 @@ public class ExpenseController : Controller
                 ModifiedOn = e.ModifiedOn,
                 CreatedByName = e.Employee.FullName,
                 CreatedOn = e.CreatedOn,
-                Purpose = e.History.First().Purpose,
-                Status = e.History.First().StatusId,
-                StatusType = e.History.First().ExpenseStatusType.Name
+                Purpose = e.History.FirstOrDefault().Purpose,
+                Status = e.History.FirstOrDefault().StatusId,
+                StatusType = e.History.FirstOrDefault().ExpenseStatusType.Name
             });
         }
 
@@ -120,9 +120,9 @@ public class ExpenseController : Controller
                 CreatedOn = expense.CreatedOn,
                 Currency = expense.Currency,
                 ModifiedOn = expense.ModifiedOn,
-                Purpose = expense.History.First().Purpose,
-                Status = expense.History.First().StatusId,
-                StatusType = expense.History.First().ExpenseStatusType.Name
+                Purpose = expense.History.FirstOrDefault().Purpose,
+                Status = expense.History.FirstOrDefault().StatusId,
+                StatusType = expense.History.FirstOrDefault().ExpenseStatusType.Name
             };
             return View(viewModel);
         }
@@ -272,11 +272,53 @@ public class ExpenseController : Controller
             {
                 ExpenseId = expense.Id,
                 CreatedOn = DateTime.Now,
-                StatusId = 5,
+                StatusId = 4,
                 Purpose = existingHistory.Purpose,
                 IsLatest = true,
                 ModifiedOn = DateTime.Now,
                 Remark = "Rejected"
+            };
+
+            _context.Expenses.Update(expense);
+            _context.ExpensesHistories.Update(existingHistory);
+            _context.ExpensesHistories.Add(newHistory);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+        return View();
+    }
+
+    public async Task<IActionResult> Pay(int id = 0)
+    {
+        int UserId = 0;
+        if (HttpContext.Session.TryGetValue("UserId", out var value))
+        {
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(value);
+            UserId = BitConverter.ToInt32(value, 0);
+        }
+
+        if (ModelState.IsValid)
+        {
+            var expense = _context.Expenses.Include(e => e.History
+                        .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
+
+            expense.ModifiedOn = DateTime.Now;
+
+            var existingHistory = expense.History.First();
+            existingHistory.IsLatest = false;
+            existingHistory.ModifiedOn = DateTime.Now;
+
+            ExpensesHistory newHistory = new ExpensesHistory
+            {
+                ExpenseId = expense.Id,
+                CreatedOn = DateTime.Now,
+                StatusId = 3,
+                Purpose = existingHistory.Purpose,
+                IsLatest = true,
+                ModifiedOn = DateTime.Now,
+                Remark = "Paied by accountant"
             };
 
             _context.Expenses.Update(expense);

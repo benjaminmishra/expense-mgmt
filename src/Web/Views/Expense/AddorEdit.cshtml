@@ -20,7 +20,14 @@
 
 }
 
-<h4>Create Expense Form</h4>
+@if (Model.Id == 0)
+{
+    <h4>Create Expense Form</h4>
+}
+else
+{
+    <h4>Expense Details</h4>
+}
 <hr />
 <div class="col-md-6">
     <form asp-action="AddorEdit">
@@ -71,6 +78,10 @@
                     <input type="submit" value="Submit" class="btn btn-secondary btn-block" />
                 </div>
             }
+            <div class="form-group col-md-6">
+                <input type="submit" value="History" class="btn btn-secondary btn-block" />
+            </div>
+
             <div class="form-group col-md-6">
                 <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
             </div>

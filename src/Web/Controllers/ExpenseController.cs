@@ -34,15 +34,15 @@ public class ExpenseController : Controller
     public async Task<IActionResult> Index(User user)
     {
         var expenses = _context.Expenses.Include(e => e.Employee)
-            .Include(e=>e.History
-                            .Where(h=>h.IsLatest==true)
+            .Include(e => e.History
+                            .Where(h => h.IsLatest == true)
                             );
 
-        IEnumerable<Expense> expenseQuery =  new List<Expense>();
+        IEnumerable<Expense> expenseQuery = new List<Expense>();
 
         int userrole = 0;
         int userid = 0;
-        
+
         if (HttpContext.Session.TryGetValue("UserRole", out var value) &&
             HttpContext.Session.TryGetValue("UserId", out var uid))
         {
@@ -51,10 +51,10 @@ public class ExpenseController : Controller
                 Array.Reverse(value);
                 Array.Reverse(uid);
             }
-            userrole = BitConverter.ToInt32(value,0);
+            userrole = BitConverter.ToInt32(value, 0);
             userid = BitConverter.ToInt32(uid, 0);
         }
-        if (userrole==0)
+        if (userrole == 0)
         {
             return Redirect("Home/Index");
         }
@@ -105,12 +105,13 @@ public class ExpenseController : Controller
         else
         {
             var expense = _context.Expenses.Include(e => e.History
-                            .Where(h => h.IsLatest == true)).SingleOrDefault(e=>e.Id ==id);
+                            .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
 
             if (expense == default)
                 return NotFound();
 
-            var viewModel = new ExpenseViewModel { 
+            var viewModel = new ExpenseViewModel
+            {
                 Id = expense.Id,
                 CreatedBy = expense.CreatedBy,
                 CreatedOn = expense.CreatedOn,
@@ -122,7 +123,7 @@ public class ExpenseController : Controller
         }
     }
 
-    // POST: Employee/Create
+    // POST: Expense/Create or Update
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddorEdit([Bind("Id,Currency,Purpose")] ExpenseViewModel expenseViewModel)
@@ -171,7 +172,7 @@ public class ExpenseController : Controller
 
                 expense.Currency = expenseViewModel.Currency;
                 expense.ModifiedOn = DateTime.Now;
-                
+
                 var existingHistory = expense.History.First();
                 existingHistory.IsLatest = false;
                 existingHistory.ModifiedOn = DateTime.Now;
@@ -191,7 +192,53 @@ public class ExpenseController : Controller
                 _context.ExpensesHistories.Add(newHistory);
                 await _context.SaveChangesAsync();
             }
-            
+
+            return RedirectToAction(nameof(Index));
+        }
+        return View(expenseViewModel);
+    }
+
+    // POST: Expense/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ManagerApprove([Bind("Id,Currency,Purpose")] ExpenseViewModel expenseViewModel)
+    {
+        int UserId = 0;
+        if (HttpContext.Session.TryGetValue("UserId", out var value))
+        {
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(value);
+            UserId = BitConverter.ToInt32(value, 0);
+        }
+
+        if (ModelState.IsValid)
+        {
+
+            var expense = _context.Expenses.Include(e => e.History
+                        .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == expenseViewModel.Id);
+
+            expense.ModifiedOn = DateTime.Now;
+
+            var existingHistory = expense.History.First();
+            existingHistory.IsLatest = false;
+            existingHistory.ModifiedOn = DateTime.Now;
+
+            ExpensesHistory newHistory = new ExpensesHistory
+            {
+                ExpenseId = expense.Id,
+                CreatedOn = DateTime.Now,
+                StatusId = 2,
+                Purpose = expenseViewModel.Purpose,
+                IsLatest = true,
+                ModifiedOn = DateTime.Now,
+            };
+
+            _context.Expenses.Update(expense);
+            _context.ExpensesHistories.Update(existingHistory);
+            _context.ExpensesHistories.Add(newHistory);
+            await _context.SaveChangesAsync();
+
+
             return RedirectToAction(nameof(Index));
         }
         return View(expenseViewModel);

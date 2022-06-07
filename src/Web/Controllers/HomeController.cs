@@ -33,7 +33,6 @@ namespace Web.Controllers
 
         public IActionResult Privacy()
         {
-            HttpContext.Session.Remove("UserRole");
             return View();
         }
 
@@ -55,6 +54,13 @@ namespace Web.Controllers
             }
 
             return RedirectToAction("Index",user);
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            TempData.Clear();
+            return Redirect("/Home/Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

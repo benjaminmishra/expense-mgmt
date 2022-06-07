@@ -1,4 +1,22 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Session;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var userid = 0;
+    if (HttpContextAccessor.HttpContext.Session.TryGetValue("UserId", out byte[]? value))
+    {
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(value);
+        }
+
+        userid = BitConverter.ToInt32(value, 0);
+    }
+
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,39 +34,48 @@
         <nav class="light-blue lighten-1" role="navigation">
             <div class="nav-wrapper container">
                 <a id="logo-container" asp-controller="Home" asp-action="Index" class="brand-logo">Fictional Company</a>
-            <ul class="right hide-on-med-and-down">
-                <li><a asp-controller="Expense" asp-action="Index">Expenses List</a></li>
-                <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-            </ul>
+                <ul class="right hide-on-med-and-down">
+                    
+                    @if (userid != 0)
+                    {
+                        <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
+                    }
+                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                </ul>
 
-            <ul id="nav-mobile" class="sidenav">
-                <li><a asp-controller="Expense" asp-action="Index">Expenses List</a></li>
-                <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-            </ul>
-            <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <ul id="nav-mobile" class="sidenav">
+                    
+                    @if (userid != 0)
+                    {
+                        <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
+                    }
+                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+
+                </ul>
+                <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
         </nav>
         @* <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Asp.netCoreMvcCrud</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Employee</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <div class="container">
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Asp.netCoreMvcCrud</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+        <ul class="navbar-nav flex-grow-1">
+        <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Employee</a>
+        </li>
+        </ul>
+        </div>
+        </div>
         </nav> *@
     </header>
     <div class="container">

@@ -64,7 +64,7 @@ public class ExpenseController : Controller
                 expenseQuery = expenseQuery.Where(e => e.CreatedBy == userid);
                 break;
             case 2: // manager
-                expenseQuery = expenseQuery.Where(e => e.Employee.ManagerId == userid);
+                expenseQuery = _context.Expenses.Include(e=>e.Employee).Where(e => e.Employee.ManagerId == userid);
                 break;
 
             case 3: // accountant

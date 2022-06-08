@@ -12,4 +12,5 @@ public class ExpenseViewModel
 	public string StatusType { get; set; }
 	public string Purpose { get; set; }
 	public string Remark { get; set; }
+	public int TotalAmount { get; set; }
 }

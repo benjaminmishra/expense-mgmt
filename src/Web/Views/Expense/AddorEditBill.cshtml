@@ -1,0 +1,115 @@
+﻿@model Web.Models.BillViewModel
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Session;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Create";
+    var userrole = 0;
+    if (HttpContextAccessor.HttpContext.Session.TryGetValue("UserRole", out byte[]? value))
+    {
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(value);
+        }
+
+        userrole = BitConverter.ToInt32(value, 0);
+    }
+    bool isNotEmployee = userrole == 1 ? false : true;
+    bool isManager = userrole == 2 ? true : false;
+    Model.ExpenseId = Model.ExpenseId == 0 ? int.Parse((string)Url.ActionContext.RouteData.Values["id"]) : Model.ExpenseId;
+
+}
+
+@if (Model.Id == 0)
+{
+    <h4>Create Bill Form</h4>
+}
+else
+{
+    <h4>Bill Details</h4>
+}
+<hr />
+
+<div class="col-md-6">
+    <form asp-action="AddorEditBill">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ExpenseId" />
+        <div class="form-group">
+            <label asp-for="Serial" class="control-label"></label>
+            @if (isNotEmployee)
+            {
+                <input asp-for="Serial" class="form-control" readonly="readonly" />
+            }
+            else
+            {
+                <input asp-for="Serial" class="form-control" />
+            }
+            <span asp-validation-for="Serial" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Amount" class="control-label"></label>
+            @if (isNotEmployee)
+            {
+                <input asp-for="Amount" class="form-control" readonly="readonly" />
+            }
+            else
+            {
+                <input asp-for="Amount" class="form-control" />
+            }
+            <span asp-validation-for="Amount" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Reason" class="control-label"></label>
+            @if (isNotEmployee)
+            {
+                <input asp-for="Reason" class="form-control" readonly="readonly" />
+            }
+            else
+            {
+                <input asp-for="Reason" class="form-control" />
+            }
+            <span asp-validation-for="Reason" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="IncurredOn" class="control-label"></label>
+            @if (isNotEmployee)
+            {
+                <input asp-for="IncurredOn" class="form-control" readonly="readonly" />
+            }
+            else
+            {
+                <input asp-for="IncurredOn" class="form-control" />
+            }
+            <span asp-validation-for="IncurredOn" class="text-danger"></span>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="UploadedOn" class="control-label"></label>
+                <input asp-for="UploadedOn" class="form-control" readonly="readonly" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            @if (!isNotEmployee)
+            {
+                <div class="form-group col-md-6">
+                    <input type="submit" value="Submit" class="btn btn-secondary btn-block" />
+                </div>
+            }
+            <div class="form-group col-md-6">
+                <input type="button" value="List all bills" onclick="location.href='@Url.Action("ListBills", "Expense", new {id = Model.Id, expenseid = Model.ExpenseId})'" class="btn btn-secondary btn-block" />
+            </div>
+            <div class="form-group col-md-6">
+                <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to Expense List</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

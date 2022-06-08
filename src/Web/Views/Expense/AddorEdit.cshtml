@@ -17,7 +17,6 @@
     }
     bool isNotEmployee = userrole == 1 ? false : true;
     bool isManager = userrole == 2 ? true : false;
-
 }
 
 @if (Model.Id == 0)
@@ -46,6 +45,10 @@ else
             <span asp-validation-for="Currency" class="text-danger"></span>
         </div>
         <div class="form-group">
+            <label asp-for="TotalAmount" class="control-label"></label>
+            <input asp-for="TotalAmount" class="form-control" readonly="readonly" />
+        </div>
+        <div class="form-group">
             <label asp-for="Purpose" class="control-label"></label>
             @if (isNotEmployee)
             {
@@ -71,13 +74,27 @@ else
             <label asp-for="StatusType" class="control-label"></label>
             <input asp-for="StatusType" class="form-control" readonly="readonly" />
         </div>
+        <div class="form-group">
+            <label asp-for="Remark" class="control-label"></label>
+            <input asp-for="Remark" class="form-control" readonly="readonly" />
+        </div>
         <div class="form-row">
             @if (!isNotEmployee)
             {
                 <div class="form-group col-md-6">
                     <input type="submit" value="Submit" class="btn btn-secondary btn-block" />
+                    @*<a asp-action="ViewBills" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Add Bill</a>*@
+                </div>
+                //<div class="form-group col-md-6">
+                //    <input type="button" value="List all bills" onclick="location.href='@Url.Action("ListBills", "Expense", new {Model.Id})'" />
+                //</div>
+                <div class="form-group col-md-6">
+                    <input type="button" value="Add a bill" onclick="location.href='@Url.Action("AddorEditBill", "Expense",  new {id = 0, expenseid = Model.Id})'" class="btn btn-secondary btn-block" />
                 </div>
             }
+            <div class="form-group col-md-6">
+                <input type="button" value="List all bills" onclick="location.href='@Url.Action("ListBills", "Expense", new {expenseid = Model.Id})'" class="btn btn-secondary btn-block" />
+            </div>
             <div class="form-group col-md-6">
                 <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
             </div>

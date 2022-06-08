@@ -35,8 +35,9 @@ public class ExpenseController : Controller
     {
         var expenses = await _context.Expenses
             .Include(e => e.Employee)
+            .Include(e=>e.Bills)
             .Include(e => e.History.Where(h => h.IsLatest == true))
-            .ThenInclude(h=>h.ExpenseStatusType).ToListAsync();
+            .ThenInclude(h => h.ExpenseStatusType).ToListAsync();
 
         IEnumerable<Expense> expenseQuery = new List<Expense>();
 
@@ -69,11 +70,11 @@ public class ExpenseController : Controller
                 expenseQuery = expenses.Where(e => e.CreatedBy == userid);
                 break;
             case 2: // manager
-                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid).Where(e=>e.History.FirstOrDefault().StatusId==1);
+                expenseQuery = expenses.Where(e => e.Employee.ManagerId == userid).Where(e => e.History.FirstOrDefault().StatusId == 1);
                 break;
 
             case 3: // accountant
-                expenseQuery = expenses.Where(e=> e.History.FirstOrDefault().StatusId==2);
+                expenseQuery = expenses.Where(e => e.History.FirstOrDefault().StatusId == 2);
                 break;
 
             case 4: // admin - revist this query , for now fetch everything in the system
@@ -92,7 +93,9 @@ public class ExpenseController : Controller
                 CreatedOn = e.CreatedOn,
                 Purpose = e.History.FirstOrDefault().Purpose,
                 Status = e.History.FirstOrDefault().StatusId,
-                StatusType = e.History.FirstOrDefault().ExpenseStatusType.Name
+                StatusType = e.History.FirstOrDefault().ExpenseStatusType.Name,
+                TotalAmount = e.Bills.Sum(b => b.Amount),
+                Remark = e.History.FirstOrDefault().Remark
             });
         }
 
@@ -107,8 +110,10 @@ public class ExpenseController : Controller
         else
         {
             var expense = _context.Expenses.Include(e => e.History
-                            .Where(h => h.IsLatest == true)).ThenInclude(h=>h.ExpenseStatusType)
-                            .Include(e=>e.Employee).SingleOrDefault(e => e.Id == id);
+                            .Where(h => h.IsLatest == true)).ThenInclude(h => h.ExpenseStatusType)
+                            .Include(e => e.Employee)
+                            .Include(e=>e.Bills)
+                            .SingleOrDefault(e => e.Id == id);
 
             if (expense == default)
                 return NotFound();
@@ -122,7 +127,9 @@ public class ExpenseController : Controller
                 ModifiedOn = expense.ModifiedOn,
                 Purpose = expense.History.FirstOrDefault().Purpose,
                 Status = expense.History.FirstOrDefault().StatusId,
-                StatusType = expense.History.FirstOrDefault().ExpenseStatusType.Name
+                StatusType = expense.History.FirstOrDefault().ExpenseStatusType.Name,
+                Remark = expense.History.FirstOrDefault().Remark,
+                TotalAmount = expense.Bills.Sum(b => b.Amount),
             };
             return View(viewModel);
         }
@@ -205,7 +212,7 @@ public class ExpenseController : Controller
     }
 
     // POST: Expense/ManagerApprove/2
-    public async Task<IActionResult> ManagerApprove(int id=0)
+    public async Task<IActionResult> ManagerApprove(int id = 0)
     {
         int UserId = 0;
         if (HttpContext.Session.TryGetValue("UserId", out var value))
@@ -235,7 +242,7 @@ public class ExpenseController : Controller
                 Purpose = existingHistory.Purpose,
                 IsLatest = true,
                 ModifiedOn = DateTime.Now,
-                Remark =  "Appoved by Manager"
+                Remark = "Appoved by Manager"
             };
 
             _context.Expenses.Update(expense);
@@ -335,12 +342,13 @@ public class ExpenseController : Controller
 
     public IActionResult History([Bind("ExpenseId")] IEnumerable<ExpenseHistoryViewModel> expenseHistoryViewModels, int id)
     {
-        var expensesHistory = _context.ExpensesHistories.Include(x=>x.ExpenseStatusType)
-            .Include(x=>x.Expense).ThenInclude(e=>e.Employee)
+        var expensesHistory = _context.ExpensesHistories.Include(x => x.ExpenseStatusType)
+            .Include(x => x.Expense).ThenInclude(e => e.Employee)
             .Where(h => h.ExpenseId == id);
 
-        var expenseHistoryVMs = expensesHistory.Select(e=> new ExpenseHistoryViewModel { 
-            ExpenseId =e.ExpenseId,
+        var expenseHistoryVMs = expensesHistory.Select(e => new ExpenseHistoryViewModel
+        {
+            ExpenseId = e.ExpenseId,
             Status = e.ExpenseStatusType.Name,
             Purpose = e.Purpose,
             Remark = e.Remark,
@@ -350,6 +358,101 @@ public class ExpenseController : Controller
         });
 
         return View(expenseHistoryVMs);
+    }
+
+    public async Task<IActionResult> AddorEditBill( int expenseid, int id = 0)
+    {
+        if (id == 0)
+            return View(new BillViewModel());
+        else
+        {
+            var bill = _context.Bills.Include(e => e.Expense).SingleOrDefault(bill => bill.Id == id);
+
+            if (bill == default)
+                return NoContent();
+
+            var viewModel = new BillViewModel
+            {
+                Id = bill.Id,
+                Reason = bill.Reason,
+                Amount = bill.Amount,
+                ExpenseId = bill.ExpenseId,
+                IncurredOn = bill.IncurredOn,
+                Serial = bill.Serial,
+                UploadedOn = bill.UploadedOn,
+            };
+            return View(viewModel);
+        }
+    }
+
+
+    // POST: Expense/Create or Update
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddorEditBill([Bind("Id,ExpenseId,Amount,IncurredOn,Serial,UploadedOn,Reason")] BillViewModel billViewModel, int expenseId)
+    {
+        int UserId = 0;
+        if (HttpContext.Session.TryGetValue("UserId", out var value))
+        {
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(value);
+            UserId = BitConverter.ToInt32(value, 0);
+        }
+
+        if (ModelState.IsValid)
+        {
+            if (billViewModel.Id == 0)
+            {
+                Bill bill = new Bill
+                {
+                    Id = billViewModel.Id,
+                    Reason = billViewModel.Reason,
+                    Amount = billViewModel.Amount,
+                    ExpenseId = expenseId,
+                    IncurredOn = billViewModel.IncurredOn,
+                    Serial = billViewModel.Serial,
+                    UploadedOn = DateTime.Now,
+                };
+
+                _context.Bills.Add(bill);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var bill = _context.Bills.Include(e => e.Expense).SingleOrDefault(bill => bill.Id == billViewModel.Id);
+
+                bill.Amount = billViewModel.Amount;
+                bill.Reason = billViewModel.Reason;
+                bill.Serial = billViewModel.Serial;
+                bill.IncurredOn = billViewModel.IncurredOn;
+
+                _context.Bills.Update(bill);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(ListBills),new { id = expenseId });
+        }
+        return View(billViewModel);
+    }
+
+    public IActionResult ListBills([Bind("ExpenseId,Serial,Amount,Reason,IncurredOn,UploadedOn")] IEnumerable<BillViewModel> billViewModels, int id, int expenseid)
+    {
+        var bills = _context.Bills
+            .Include(x => x.Expense)
+            .Where(h => h.ExpenseId == expenseid);
+
+        var billVms = bills.Select(e => new BillViewModel
+        {
+            Id = e.Id,
+            ExpenseId = e.ExpenseId,
+            Serial = e.Serial,
+            Amount = e.Amount,
+            IncurredOn = e.IncurredOn,
+            UploadedOn = e.UploadedOn,
+            Reason = e.Reason,
+        }).ToList();
+
+        return View(billVms);
     }
 
     // GET: Employee/Delete/5

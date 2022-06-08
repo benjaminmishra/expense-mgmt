@@ -1,0 +1,105 @@
+﻿@model IEnumerable<Web.Models.BillViewModel>
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Session;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    //ViewData["Title"] = "Bills List";
+    var userrole = 0;
+    if (HttpContextAccessor.HttpContext.Session.TryGetValue("UserRole", out byte[]? value))
+    {
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(value);
+        }
+
+        userrole = BitConverter.ToInt32(value, 0);
+    }
+    bool isNotEmployee = userrole == 1 ? false : true;
+    bool isManager = userrole == 2 ? true : false;
+    var expenseId = Model.FirstOrDefault() == default ? int.Parse((string)Url.ActionContext.RouteData.Values["id"]) : @Model.FirstOrDefault().ExpenseId;
+}
+
+<h3>Bills</h3>
+
+<table class="highlight">
+
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExpenseId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Serial)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IncurredOn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UploadedOn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reason)
+            </th>
+            @if (userrole == 1 && expenseId!=0)
+            {
+                <th>
+                    <a asp-action="AddorEditBill" asp-route-id= "0" asp-route-expenseid= "@expenseId" class="btn btn-outline-success"><i class="fa fa-plus-square"></i> Add Bill</a>
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.ExpenseId)
+                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Serial)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IncurredOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UploadedOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Reason)
+                </td>
+                <td>
+                    @if (userrole == 1)
+                    {
+
+                        <a asp-action="AddorEditBill" asp-route-id= "@item.Id" asp-route-expenseid= "@item.ExpenseId"><i class="fa fa-marker fa-lg"></i></a>
+                        <a asp-action="DeleteBill" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to delete bill?')"><i class="fa fa-trash-alt fa-lg"></i></a>
+
+                    }
+                    else
+                    {
+                        <a asp-action="AddorEditBill" asp-route-id="@item.Id"><i class="fa fa-eye"></i></a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+
+        <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
+
+    </tfoot>
+</table>

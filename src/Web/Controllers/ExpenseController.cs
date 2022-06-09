@@ -84,6 +84,38 @@ public class ExpenseController : Controller
 
         foreach (var e in expenseQuery)
         {
+            string purpose = "";
+            int statusId = 0;
+            string statusType = "";
+            int TotalAmount = 0;
+            string Remark = "";
+
+            if (e.History == default)
+            {
+                purpose = string.Empty;
+                statusId = 1;
+                statusType = "New";
+                Remark = "New";
+            }
+            else 
+            {
+                purpose = e.History.FirstOrDefault().Purpose;
+                statusId = e.History.FirstOrDefault().StatusId;
+                statusType = e.History.FirstOrDefault().ExpenseStatusType.Name;
+                Remark = e.History.FirstOrDefault().Remark;
+            }
+
+            if (e.Bills == null)
+            {
+                TotalAmount = 0;
+            }
+
+
+            if (e.History.FirstOrDefault() == default)
+                purpose = string.Empty;
+            else
+                purpose = e.History.FirstOrDefault().Purpose;
+
             expenseDtos.Add(new ExpenseViewModel
             {
                 Id = e.Id,
@@ -91,11 +123,11 @@ public class ExpenseController : Controller
                 ModifiedOn = e.ModifiedOn,
                 CreatedByName = e.Employee.FullName,
                 CreatedOn = e.CreatedOn,
-                Purpose = e.History.FirstOrDefault().Purpose,
-                Status = e.History.FirstOrDefault().StatusId,
-                StatusType = e.History.FirstOrDefault().ExpenseStatusType.Name,
+                Purpose = purpose,
+                Status = statusId,
+                StatusType = statusType,
                 TotalAmount = e.Bills.Sum(b => b.Amount),
-                Remark = e.History.FirstOrDefault().Remark
+                Remark = Remark
             });
         }
 

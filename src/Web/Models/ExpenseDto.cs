@@ -13,6 +13,7 @@ public class ExpenseViewModel
 	public DateTime ModifiedOn { get; set; }
 	public int Status { get; set; }
 	public string StatusType { get; set; }
+	[Required(ErrorMessage ="Purpose is required")]
 	public string Purpose { get; set; }
 	public string Remark { get; set; }
 	public int TotalAmount { get; set; }

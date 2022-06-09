@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+
 namespace Web.Models;
 
 public class ExpenseViewModel

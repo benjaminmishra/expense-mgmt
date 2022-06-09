@@ -34,6 +34,12 @@ else
 <div class="col-md-6">
     <form asp-action="AddorEditBill">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @if (TempData["AmountValidationFailed"]!=null && (bool)TempData["AmountValidationFailed"])
+        {
+            <p class="text-danger">
+               Cannot add this bill as total expense exceeds 5000!
+            </p>
+        }
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="ExpenseId" />
         <div class="form-group">

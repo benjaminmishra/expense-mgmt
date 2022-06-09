@@ -28,20 +28,18 @@ namespace Web.Controllers
 
         public IActionResult Index()
         {
-            ViewData["LoginFailed"] = false;
             return View();
         }
 
         public IActionResult Privacy()
         {
-            ViewData["LoginFailed"] = false;
             return View();
         }
 
         [HttpPost]
         public IActionResult Login(User user)
         {
-            ViewData["LoginFailed"] = false;
+            ViewData["LoginFailed"] = 0;
             if (ModelState.IsValid)
             {
                 var employee = _dbCOntext.Employees.SingleOrDefault(e => e.Id == user.EmployeeId && e.IsActive && e.Password == user.Password);
@@ -55,8 +53,8 @@ namespace Web.Controllers
                     return Redirect("/Expense/Index");
                 }
             }
-            ViewData["LoginFailed"] = true;
-            return RedirectToAction("Index");
+            TempData["LoginFailed"] = true;
+            return RedirectToAction("Index","Home");
         }
 
         public IActionResult Logout()

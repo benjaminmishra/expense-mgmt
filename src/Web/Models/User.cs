@@ -13,4 +13,7 @@ public class User
     [Required(ErrorMessage = "This field is required")]
     [DisplayName("Password")]
     public string Password { get; set; }
+
+
+    public bool LoginFailed { get; set; } = false;
 }

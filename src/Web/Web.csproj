@@ -47,8 +47,4 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Bill\" />
-    <Folder Include="Views\Reports\" />
-  </ItemGroup>
 </Project>

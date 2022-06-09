@@ -13,9 +13,9 @@
 }
 else if (userrole == 2)
 {
-    <h3>Expense waiting for your approval</h3>
+    <h3>Expenses Awaiting Approval</h3>
 }
-else if(userrole == 3)
+else if (userrole == 3)
 {
     <h3>Expenses waiting to be paid</h3>
 }
@@ -44,16 +44,22 @@ else
                 <th>
                     @Html.DisplayNameFor(model => model.StatusType)
                 </th>
-                 <th>
+                <th>
                     @Html.DisplayNameFor(model => model.TotalAmount)
                 </th>
-                 <th>
+                <th>
                     @Html.DisplayNameFor(model => model.Remark)
                 </th>
                 @if (userrole == 1)
                 {
                     <th>
                         <a asp-action="AddorEdit" class="btn btn-outline-success"><i class="fa fa-plus-square"></i> Add Expense</a>
+                    </th>
+                }
+                else if (userrole == 4)
+                {
+                    <th>
+                        <div class="btn btn-outline-success">@Html.ActionLink("Other reports","Index","Reports")</div>
                     </th>
                 }
             </tr>
@@ -77,16 +83,16 @@ else
                     <td>
                         @Html.DisplayFor(modelItem => item.StatusType)
                     </td>
-                     <td>
+                    <td>
                         @Html.DisplayFor(modelItem => item.TotalAmount)
                     </td>
-                     <td>
+                    <td>
                         @Html.DisplayFor(modelItem => item.Remark)
                     </td>
                     <td>
                         @if (userrole == 1)
                         {
-                            if (item.Status == 1)
+                            if (item.Status == 1 || item.Status == 5)
                             {
                                 <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-marker fa-lg"></i></a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to delete expense?')"><i class="fa fa-trash-alt fa-lg"></i></a>
@@ -120,5 +126,12 @@ else
     else
     {
         <tr>No records found</tr>
+        <br />
+        @if (userrole == 1)
+        {
+            <tr>
+                <a asp-action="AddorEdit" class="btn btn-outline-success"><i class="fa fa-plus-square"></i> Add Expense</a>
+            </tr>
+        }
     }
 </table>

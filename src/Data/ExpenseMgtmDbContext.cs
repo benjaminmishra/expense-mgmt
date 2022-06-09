@@ -22,41 +22,47 @@ public class ExpenseMgmtDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<EmployeeRole>().HasData(new EmployeeRole {
-            Id = 1 ,
+        builder.Entity<EmployeeRole>().HasData(new EmployeeRole
+        {
+            Id = 1,
             Name = "Employee",
             Description = "Employee"
         },
-        new EmployeeRole {
+        new EmployeeRole
+        {
             Id = 2,
             Name = "Manager",
-            Description="Manager"
+            Description = "Manager"
         },
         new EmployeeRole
         {
-            Id=3,
-            Name="Accountant",
-            Description="Acc"
+            Id = 3,
+            Name = "Accountant",
+            Description = "Acc"
         },
-        new EmployeeRole {
-            Id=4,
-            Name="Admin",
-            Description="Admin"
+        new EmployeeRole
+        {
+            Id = 4,
+            Name = "Admin",
+            Description = "Admin"
         });
 
         builder.Entity<ExpenseStatusType>().HasData(
-            new ExpenseStatusType {
+            new ExpenseStatusType
+            {
                 Id = 1,
                 Name = "Pending for approval",
                 Description = "Pending for approval"
             },
-            new ExpenseStatusType {
+            new ExpenseStatusType
+            {
                 Id = 2,
                 Name = "Pending to be paid",
                 Description = "Approved by manager, Pending with accountant"
             },
-            new ExpenseStatusType {
-                Id=3,
+            new ExpenseStatusType
+            {
+                Id = 3,
                 Name = "Paid",
                 Description = "Paid by accountant"
             },
@@ -65,20 +71,46 @@ public class ExpenseMgmtDbContext : DbContext
                 Id = 4,
                 Name = "Rejected",
                 Description = "Rejected by manager"
+            },
+            new ExpenseStatusType
+            {
+                Id = 5,
+                Name = "Review",
+                Description = "Sent back by manager"
             });
 
         builder.Entity<Employee>().HasData(
-            new Employee {
-                Id=1,
+            new Employee
+            {
+                Id = 1,
                 FullName = "Jon Doe",
                 RoleId = 1,
                 ManagerId = 2,
                 IsActive = true,
                 Password = "xyz"
             },
-            new Employee {
-                Id=2,
+            new Employee
+            {
+                Id = 5,
+                FullName = "Employee Joe",
+                RoleId = 1,
+                ManagerId = 6,
+                IsActive = true,
+                Password = "xyz"
+            },
+            new Employee
+            {
+                Id = 2,
                 FullName = "Jane Doe",
+                RoleId = 2,
+                ManagerId = 0,
+                IsActive = true,
+                Password = "abc"
+            },
+            new Employee
+            {
+                Id = 6,
+                FullName = "Manager Doe",
                 RoleId = 2,
                 ManagerId = 0,
                 IsActive = true,
@@ -97,6 +129,15 @@ public class ExpenseMgmtDbContext : DbContext
             {
                 Id = 4,
                 FullName = "Admin Doe",
+                RoleId = 4,
+                ManagerId = 2,
+                IsActive = true,
+                Password = "abc"
+            },
+            new Employee
+            {
+                Id = 7,
+                FullName = "Admin Joe2",
                 RoleId = 4,
                 ManagerId = 2,
                 IsActive = true,

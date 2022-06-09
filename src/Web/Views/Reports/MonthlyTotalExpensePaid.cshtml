@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Web.Models.MonthlyTotalExpensePaidViewModel>
+@*@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Session;
+@inject IHttpContextAccessor HttpContextAccessor*@
+
+@{
+    //ViewData["Title"] = "Bills List";
+    //var userrole = 0;
+    //if (HttpContextAccessor.HttpContext.Session.TryGetValue("UserRole", out byte[]? value))
+    //{
+    //    if (BitConverter.IsLittleEndian)
+    //    {
+    //        Array.Reverse(value);
+    //    }
+
+    //    userrole = BitConverter.ToInt32(value, 0);
+    //}
+    //bool isNotEmployee = userrole == 1 ? false : true;
+    //bool isManager = userrole == 2 ? true : false;
+    //var expenseId = Model.FirstOrDefault() == default ? int.Parse((string)Url.ActionContext.RouteData.Values["id"]) : @Model.FirstOrDefault().ExpenseId;
+}
+
+<h3>Monthly Total Expense Paid</h3>
+
+<table class="highlight">
+
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Year)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Month)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalExpensePaid)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Year)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Month)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.TotalExpensePaid)
+                </th>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+
+        <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
+
+    </tfoot>
+</table>

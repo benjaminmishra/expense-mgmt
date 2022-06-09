@@ -17,7 +17,7 @@
     }
     bool isNotEmployee = userrole == 1 ? false : true;
     bool isManager = userrole == 2 ? true : false;
-    var expenseId = Model.FirstOrDefault() == default ? int.Parse((string)Url.ActionContext.RouteData.Values["id"]) : @Model.FirstOrDefault().ExpenseId;
+    var expenseId = Model.FirstOrDefault() == default ? int.Parse((string)Url.ActionContext.RouteData.Values["expenseid"]) : @Model.FirstOrDefault().ExpenseId;
 }
 
 <h3>Bills</h3>

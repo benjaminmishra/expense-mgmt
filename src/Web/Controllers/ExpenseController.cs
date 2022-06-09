@@ -147,7 +147,7 @@ public class ExpenseController : Controller
                 Array.Reverse(value);
             UserId = BitConverter.ToInt32(value, 0);
         }
-
+        ModelState.Remove("Remark");
         if (ModelState.IsValid)
         {
             if (expenseViewModel.Id == 0)
@@ -221,7 +221,7 @@ public class ExpenseController : Controller
                 Array.Reverse(value);
             UserId = BitConverter.ToInt32(value, 0);
         }
-
+        ModelState.Remove("Remark");
         if (ModelState.IsValid)
         {
 
@@ -243,6 +243,40 @@ public class ExpenseController : Controller
                 IsLatest = true,
                 ModifiedOn = DateTime.Now,
                 Remark = "Appoved by Manager"
+            };
+
+            _context.Expenses.Update(expense);
+            _context.ExpensesHistories.Update(existingHistory);
+            _context.ExpensesHistories.Add(newHistory);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+        return View();
+    }
+
+    public async Task<IActionResult> ManagerSendBack(int expenseid = 0)
+    {
+        if (ModelState.IsValid)
+        {
+            var expense = _context.Expenses.Include(e => e.History
+                        .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == expenseid);
+
+            expense.ModifiedOn = DateTime.Now;
+
+            var existingHistory = expense.History.First();
+            existingHistory.IsLatest = false;
+            existingHistory.ModifiedOn = DateTime.Now;
+
+            ExpensesHistory newHistory = new ExpensesHistory
+            {
+                ExpenseId = expense.Id,
+                CreatedOn = DateTime.Now,
+                StatusId = 5,
+                Purpose = existingHistory.Purpose,
+                IsLatest = true,
+                ModifiedOn = DateTime.Now,
+                Remark = "Sent back by manager for review"
             };
 
             _context.Expenses.Update(expense);
@@ -398,7 +432,17 @@ public class ExpenseController : Controller
                 Array.Reverse(value);
             UserId = BitConverter.ToInt32(value, 0);
         }
+        var realtedExpens = _context.Expenses.Include(e => e.Bills).Include(e => e.History.Where(h=>h.IsLatest))
+            .SingleOrDefault(x => x.Id == expenseId);
 
+        var totalexpensesofar = realtedExpens.Bills.Sum(b=>b.Amount);
+
+        if ((totalexpensesofar + billViewModel.Amount) > 5000)
+        {
+            TempData["AmountValidationFailed"] = true;
+            return View(billViewModel);
+        }
+        ModelState.Remove("Remark");
         if (ModelState.IsValid)
         {
             if (billViewModel.Id == 0)
@@ -429,30 +473,54 @@ public class ExpenseController : Controller
                 _context.Bills.Update(bill);
                 await _context.SaveChangesAsync();
             }
+            // update expense status also 
+            var history = realtedExpens.History.SingleOrDefault();
+            history.IsLatest = false;
+            history.ModifiedOn = DateTime.Now;
 
-            return RedirectToAction(nameof(ListBills),new { id = expenseId });
+            ExpensesHistory newHistory = new ExpensesHistory
+            {
+                ExpenseId = realtedExpens.Id,
+                CreatedOn = DateTime.Now,
+                StatusId = 1,
+                Purpose = history.Purpose,
+                IsLatest = true,
+                ModifiedOn = DateTime.Now,
+                Remark = "Reviewd and sent for approval again"
+            };
+
+            _context.ExpensesHistories.Update(history);
+            _context.ExpensesHistories.Add(newHistory);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ListBills),new { expenseid = expenseId });
         }
         return View(billViewModel);
     }
 
     public IActionResult ListBills([Bind("ExpenseId,Serial,Amount,Reason,IncurredOn,UploadedOn")] IEnumerable<BillViewModel> billViewModels, int id, int expenseid)
     {
+        
         var bills = _context.Bills
             .Include(x => x.Expense)
             .Where(h => h.ExpenseId == expenseid);
 
-        var billVms = bills.Select(e => new BillViewModel
+        if (bills!=null && bills.Count() != 0)
         {
-            Id = e.Id,
-            ExpenseId = e.ExpenseId,
-            Serial = e.Serial,
-            Amount = e.Amount,
-            IncurredOn = e.IncurredOn,
-            UploadedOn = e.UploadedOn,
-            Reason = e.Reason,
-        }).ToList();
+            var billVms = bills.Select(e => new BillViewModel
+            {
+                Id = e.Id,
+                ExpenseId = e.ExpenseId,
+                Serial = e.Serial,
+                Amount = e.Amount,
+                IncurredOn = e.IncurredOn,
+                UploadedOn = e.UploadedOn,
+                Reason = e.Reason,
+            }).ToList();
 
-        return View(billVms);
+            return View(billVms);
+        }
+        return View();
     }
 
     // GET: Employee/Delete/5
@@ -460,6 +528,14 @@ public class ExpenseController : Controller
     {
         var expense = await _context.Expenses.FindAsync(id);
         _context.Expenses.Remove(expense);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> DeleteBill(int? id)
+    {
+        var expense = await _context.Bills.FindAsync(id);
+        _context.Bills.Remove(expense);
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }

@@ -4,6 +4,7 @@ using ExpenseMgmt.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseMgmt.Data.Migrations
 {
     [DbContext(typeof(ExpenseMgmtDbContext))]
-    partial class ExpenseMgmtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220609074544_Addednewstatus")]
+    partial class Addednewstatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,15 +140,6 @@ namespace ExpenseMgmt.Data.Migrations
                         {
                             Id = 4,
                             FullName = "Admin Doe",
-                            IsActive = true,
-                            ManagerId = 2,
-                            Password = "abc",
-                            RoleId = 4
-                        },
-                        new
-                        {
-                            Id = 7,
-                            FullName = "Admin Joe2",
                             IsActive = true,
                             ManagerId = 2,
                             Password = "abc",

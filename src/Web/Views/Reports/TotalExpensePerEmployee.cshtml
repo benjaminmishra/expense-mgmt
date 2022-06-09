@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Web.Models.TotalExpensePerEmployeeViewModel>
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Session;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    //ViewData["Title"] = "Bills List";
+    //var userrole = 0;
+    //if (HttpContextAccessor.HttpContext.Session.TryGetValue("UserRole", out byte[]? value))
+    //{
+    //    if (BitConverter.IsLittleEndian)
+    //    {
+    //        Array.Reverse(value);
+    //    }
+
+    //    userrole = BitConverter.ToInt32(value, 0);
+    //}
+    //bool isNotEmployee = userrole == 1 ? false : true;
+    //bool isManager = userrole == 2 ? true : false;
+    //var expenseId = Model.FirstOrDefault() == default ? int.Parse((string)Url.ActionContext.RouteData.Values["id"]) : @Model.FirstOrDefault().ExpenseId;
+}
+
+<h3>Total Expense Per Employee</h3>
+
+<table class="highlight">
+
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeFullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeManagerId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalExpense)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmployeeId)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.EmployeeFullName)
+                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmployeeManagerId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalExpense)
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+
+        <a asp-action="Index" class="btn btn-secondary btn-block"><i class="fa fa-table"></i> Back to List</a>
+
+    </tfoot>
+</table>

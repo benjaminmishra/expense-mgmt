@@ -11,63 +11,63 @@ using Web.Models;
 using ExpenseMgmt.Data;
 using Newtonsoft.Json;
 
-namespace Web.Controllers
+namespace Web.Controllers;
+
+[TypeFilter(typeof(GlobalExceptionFilters))]
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+    private readonly ExpenseMgmtDbContext _dbCOntext;
+    private readonly ISession session;
+
+    public HomeController(ILogger<HomeController> logger, ExpenseMgmtDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ExpenseMgmtDbContext _dbCOntext;
-        private readonly ISession session;
+        _logger = logger;
+        _dbCOntext = dbContext;
+        session = this.session = httpContextAccessor.HttpContext.Session;
+    }
 
-        public HomeController(ILogger<HomeController> logger, ExpenseMgmtDbContext dbContext, IHttpContextAccessor httpContextAccessor)
-        {
-            _logger = logger;
-            _dbCOntext = dbContext;
-            session = this.session = httpContextAccessor.HttpContext.Session;
-        }
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+    public IActionResult Privacy()
+    {
+        return View();
+    }
 
-        public IActionResult Privacy()
+    [HttpPost]
+    public IActionResult Login(User user)
+    {
+        ViewData["LoginFailed"] = 0;
+        if (ModelState.IsValid)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Login(User user)
-        {
-            ViewData["LoginFailed"] = 0;
-            if (ModelState.IsValid)
+            var employee = _dbCOntext.Employees.SingleOrDefault(e => e.Id == user.EmployeeId && e.IsActive && e.Password == user.Password);
+            if (employee != default)
             {
-                var employee = _dbCOntext.Employees.SingleOrDefault(e => e.Id == user.EmployeeId && e.IsActive && e.Password == user.Password);
-                if (employee != default)
-                {
-                    HttpContext.Session.SetInt32("UserRole", employee.RoleId);
-                    HttpContext.Session.SetInt32("UserId", user.EmployeeId);
-                    TempData["userid"] = user.EmployeeId;
-                    TempData["userName"] = employee.FullName;
-                    TempData["roleid"] = employee.RoleId;
-                    return Redirect("/Expense/Index");
-                }
+                HttpContext.Session.SetInt32("UserRole", employee.RoleId);
+                HttpContext.Session.SetInt32("UserId", user.EmployeeId);
+                TempData["userid"] = user.EmployeeId;
+                TempData["userName"] = employee.FullName;
+                TempData["roleid"] = employee.RoleId;
+                return Redirect("/Expense/Index");
             }
-            TempData["LoginFailed"] = true;
-            return RedirectToAction("Index","Home");
         }
+        TempData["LoginFailed"] = true;
+        return RedirectToAction("Index","Home");
+    }
 
-        public IActionResult Logout()
-        {
-            HttpContext.Session.Clear();
-            TempData.Clear();
-            return Redirect("/Home/Index");
-        }
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Clear();
+        TempData.Clear();
+        return Redirect("/Home/Index");
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

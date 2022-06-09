@@ -15,7 +15,7 @@ public class BillViewModel
 
     [Required(ErrorMessage = "This field is required")]
     [DisplayName("Amount")]
-    [Range(1,4000)]
+    [Range(1,5000)]
     public int Amount { get; set; }
     public DateTime UploadedOn { get; set; }
 

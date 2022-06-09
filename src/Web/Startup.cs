@@ -21,7 +21,10 @@ public class Startup
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllersWithViews();
+        services.AddControllersWithViews(options =>
+        {
+            options.Filters.Add(typeof(GlobalExceptionFilters));
+        });
         services.AddDistributedMemoryCache();
         services.AddSession(options => {
             options.IdleTimeout = System.TimeSpan.FromMinutes(1);//You can set Time   
@@ -37,6 +40,7 @@ public class Startup
         //});
 
         services.AddDbContext<ExpenseMgmtDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,7 +50,7 @@ public class Startup
     
         if (env.IsDevelopment())
         {
-            app.UseDeveloperExceptionPage();
+            //app.UseDeveloperExceptionPage();
         }
         else
         {

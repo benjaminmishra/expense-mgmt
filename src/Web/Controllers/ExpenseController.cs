@@ -8,11 +8,12 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Web;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Web.Controllers;
-
+[TypeFilter(typeof(GlobalExceptionFilters))]
 public class ExpenseController : Controller
 {
     private readonly ExpenseMgmtDbContext _context;
@@ -87,7 +88,7 @@ public class ExpenseController : Controller
             string purpose = "";
             int statusId = 0;
             string statusType = "";
-            int TotalAmount = 0;
+            int totalAmount = 0;
             string Remark = "";
 
             if (e.History == default)
@@ -107,7 +108,11 @@ public class ExpenseController : Controller
 
             if (e.Bills == null)
             {
-                TotalAmount = 0;
+                totalAmount = 0;
+            }
+            else 
+            {
+                totalAmount = e.Bills.Sum(b => b.Amount);
             }
 
 
@@ -126,7 +131,7 @@ public class ExpenseController : Controller
                 Purpose = purpose,
                 Status = statusId,
                 StatusType = statusType,
-                TotalAmount = e.Bills.Sum(b => b.Amount),
+                TotalAmount = totalAmount,
                 Remark = Remark
             });
         }

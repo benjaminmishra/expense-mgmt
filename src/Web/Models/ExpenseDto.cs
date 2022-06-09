@@ -7,6 +7,7 @@ namespace Web.Models;
 public class ExpenseViewModel
 {
 	public int Id { get; set; }
+	[Required(ErrorMessage = "Currency is required")]
 	public string Currency { get; set; }
 	public string CreatedByName { get; set; }
 	public DateTime CreatedOn { get; set; }

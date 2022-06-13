@@ -7,7 +7,6 @@ using Web.Models;
 
 namespace Web.Controllers;
 
-[TypeFilter(typeof(GlobalExceptionFilters))]
 public class ReportsController : Controller
 {
     private readonly ExpenseMgmtDbContext _dbContext;

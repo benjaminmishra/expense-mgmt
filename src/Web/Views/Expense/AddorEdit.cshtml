@@ -40,7 +40,6 @@ else
             }
             else
             {
-                //<input asp-for="Currency" class="form-control" />
                 <select asp-for="Currency" class="form-control" >
                 <option value="INR">INR</option>
                 <option value="USD">USD</option>
@@ -107,7 +106,7 @@ else
                     <input type="submit" id="sendback"  name="submit" value="Send Back For Review" class="btn btn-secondary btn-block" />
                 </div>
             }
-            @if (Model.Id != 0)
+            @if (Model.Id != 0 && Model.TotalAmount>0)
             {
                 <div class="form-group col-md-6">
                     <input type="button" value="List all bills" onclick="location.href='@Url.Action("ListBills", "Expense", new {expenseid = Model.Id})'" class="btn btn-secondary btn-block" />

@@ -185,7 +185,7 @@ public class ExpenseController : Controller
 
                 ExpenseViewModel viewModel = new ExpenseViewModel();
 
-                if (UserRole == 2 && expense.History.FirstOrDefault().StatusId==1)
+                if (UserRole == 2 && expense.History.FirstOrDefault().StatusId == 1)
                 {
                     viewModel = new ExpenseViewModel
                     {
@@ -298,26 +298,30 @@ public class ExpenseController : Controller
                     existingHistory.ModifiedOn = DateTime.Now;
 
                     ExpensesHistory newHistory = new ExpensesHistory();
+                    newHistory.ExpenseId = expense.Id;
+                    newHistory.CreatedOn = DateTime.Now;
+                    newHistory.Purpose = expenseViewModel.Purpose;
+                    newHistory.IsLatest = true;
+                    newHistory.ModifiedOn = DateTime.Now;
 
                     if (submit == "Send Back For Review")
                     {
-                        newHistory.ExpenseId = expense.Id;
-                        newHistory.CreatedOn = DateTime.Now;
                         newHistory.StatusId = 5;
-                        newHistory.Purpose = existingHistory.Purpose;
-                        newHistory.IsLatest = true;
-                        newHistory.ModifiedOn = DateTime.Now;
                         newHistory.Remark = "Modified by manager with remark : " + expenseViewModel.Remark;
+                    }
+                    else if (submit == "Approve")
+                    {
+                        newHistory.StatusId = 2;
+                        newHistory.Remark = "Appoved by Manager with remark : " + expenseViewModel.Remark;
+                    }
+                    else if (submit == "Reject")
+                    {
+                        newHistory.StatusId = 4;
+                        newHistory.Remark = "Rejected by manager with remark : " + expenseViewModel.Remark;
                     }
                     else
                     {
-
-                        newHistory.ExpenseId = expense.Id;
-                        newHistory.CreatedOn = DateTime.Now;
                         newHistory.StatusId = 1;
-                        newHistory.Purpose = expenseViewModel.Purpose;
-                        newHistory.IsLatest = true;
-                        newHistory.ModifiedOn = DateTime.Now;
                         newHistory.Remark = "Modified by employee";
                     }
 
@@ -342,131 +346,6 @@ public class ExpenseController : Controller
             };
             _context.ExceptionLogs.Add(log);
             return View(expenseViewModel);
-        }
-        finally
-        {
-            _context.SaveChanges();
-        }
-    }
-
-
-    // POST: Expense/ManagerApprove/2
-    public async Task<IActionResult> ManagerApprove([Bind("Id,Remark")] ExpenseViewModel expenseViewModel, int id = 0)
-    {
-        try
-        {
-            int UserId = 0;
-            if (HttpContext.Session.TryGetValue("UserId", out var value))
-            {
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(value);
-                UserId = BitConverter.ToInt32(value, 0);
-            }
-            ModelState.Remove("Remark");
-            if (ModelState.IsValid)
-            {
-
-                var expense = _context.Expenses.Include(e => e.History
-                            .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
-
-                expense.ModifiedOn = DateTime.Now;
-
-                var existingHistory = expense.History.First();
-                existingHistory.IsLatest = false;
-                existingHistory.ModifiedOn = DateTime.Now;
-
-                ExpensesHistory newHistory = new ExpensesHistory
-                {
-                    ExpenseId = expense.Id,
-                    CreatedOn = DateTime.Now,
-                    StatusId = 2,
-                    Purpose = existingHistory.Purpose,
-                    IsLatest = true,
-                    ModifiedOn = DateTime.Now,
-                    Remark = "Appoved by Manager"
-                };
-
-                _context.Expenses.Update(expense);
-                _context.ExpensesHistories.Update(existingHistory);
-                _context.ExpensesHistories.Add(newHistory);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
-            }
-            return View();
-        }
-        catch (Exception ex)
-        {
-            ExceptionLogs log = new ExceptionLogs
-            {
-                CreatedOn = DateTime.Now,
-                InnerException = ex.InnerException.Message,
-                Message = ex.Message,
-                StackTrace = ex.StackTrace,
-            };
-            _context.ExceptionLogs.Add(log);
-            return View();
-        }
-        finally
-        {
-            _context.SaveChanges();
-        }
-    }
-
-    public async Task<IActionResult> Reject(int id = 0)
-    {
-        try
-        {
-            int UserId = 0;
-            if (HttpContext.Session.TryGetValue("UserId", out var value))
-            {
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(value);
-                UserId = BitConverter.ToInt32(value, 0);
-            }
-
-            if (ModelState.IsValid)
-            {
-                var expense = _context.Expenses.Include(e => e.History
-                            .Where(h => h.IsLatest == true)).SingleOrDefault(e => e.Id == id);
-
-                expense.ModifiedOn = DateTime.Now;
-
-                var existingHistory = expense.History.First();
-                existingHistory.IsLatest = false;
-                existingHistory.ModifiedOn = DateTime.Now;
-
-                ExpensesHistory newHistory = new ExpensesHistory
-                {
-                    ExpenseId = expense.Id,
-                    CreatedOn = DateTime.Now,
-                    StatusId = 4,
-                    Purpose = existingHistory.Purpose,
-                    IsLatest = true,
-                    ModifiedOn = DateTime.Now,
-                    Remark = "Rejected by manager"
-                };
-
-                _context.Expenses.Update(expense);
-                _context.ExpensesHistories.Update(existingHistory);
-                _context.ExpensesHistories.Add(newHistory);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
-            }
-            return View();
-        }
-        catch (Exception ex)
-        {
-            ExceptionLogs log = new ExceptionLogs
-            {
-                CreatedOn = DateTime.Now,
-                InnerException = ex.InnerException.Message,
-                Message = ex.Message,
-                StackTrace = ex.StackTrace,
-            };
-            _context.ExceptionLogs.Add(log);
-            return View();
         }
         finally
         {
@@ -552,7 +431,7 @@ public class ExpenseController : Controller
                 CreatedBy = e.Expense.Employee.FullName,
                 CreatedOn = e.CreatedOn,
                 ModifiedOn = e.ModifiedOn
-            });
+            }).OrderByDescending(x=>x.ModifiedOn);
 
             return View(expenseHistoryVMs);
         }

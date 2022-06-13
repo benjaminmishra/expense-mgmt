@@ -101,11 +101,11 @@ else
                         else if (userrole == 2)
                         {
                             <a asp-action="AddOrEdit" asp-route-id="@item.Id"><i class="fa fa-eye"></i></a>
-                            if (item.Status == 1)
+                            @*if (item.Status == 1)
                             {
                                 <a asp-action="ManagerApprove" asp-route-id="@item.Id"><i class="fa fa-check fa-lg"></i></a>
                                 <a asp-action="Reject" asp-route-id="@item.Id" class="text-danger ml-1" onclick="return confirm('Are you sure to reject this expense?')"><i class="fa fa-ban fa-lg"></i></a>
-                            }
+                            }*@
                         }
                         else if (userrole == 3)
                         {

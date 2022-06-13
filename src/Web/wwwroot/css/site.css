@@ -30,7 +30,7 @@ a {
 
 /* Sticky footer styles
 -------------------------------------------------- */
-/*html {
+html {
   font-size: 14px;
 }
 @media (min-width: 768px) {
@@ -53,11 +53,11 @@ a {
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
-}*/
+}
 
 /* Sticky footer styles
 -------------------------------------------------- */
-html {
+/*html {
   position: relative;
   min-height: 100%;
 }
@@ -72,4 +72,4 @@ body {
   width: 100%;
   white-space: nowrap;
   line-height: 60px;  Vertically center the text there 
-}
+}*/
